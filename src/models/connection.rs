@@ -48,7 +48,7 @@ pub struct CveEntry {
     pub href: String,
 }
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Debug, Clone)]
 pub enum WebService {
     #[default]
     NONE,

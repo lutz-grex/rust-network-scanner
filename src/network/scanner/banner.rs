@@ -10,7 +10,7 @@ use tokio::time::{timeout};
 use crate::models::connection::WebService;
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct BannerScanResult {
     pub banner: String,
     pub server: String,

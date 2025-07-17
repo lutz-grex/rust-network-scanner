@@ -43,6 +43,7 @@ pub async fn fetch_connection_details(target: &IpAddr, port: u16, include_cve: b
         port: port, 
         banner: banner_scan_data.banner, 
         server: banner_scan_data.server,
+        web_service: banner_scan_data.web_service,
         status: port_scan_data.status, 
         latency_ms: port_scan_data.latency_ms,
         request_status: if port_scan_data.status == ConnectionStatus::OPEN {RequestStatus::SUCCESS} else {RequestStatus::FAILED},
