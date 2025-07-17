@@ -1,7 +1,4 @@
-use std::default;
-
 use reqwest::{Client, Method};
-
 use crate::network::adapter::vulners::deserialize_models::{VulnersResponseStatus, VulnersResult};
 
 

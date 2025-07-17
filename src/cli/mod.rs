@@ -1,2 +1,2 @@
 pub mod extractor;
-pub mod input;
+pub mod command;

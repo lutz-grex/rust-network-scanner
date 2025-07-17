@@ -36,7 +36,7 @@ cargo run -- scan \
   --ports 80,443,22 \
   --timeout 1000 \
   --concurrency 200 \
-  --banner \
+  --cve \
   --output output.json
 ```
 
@@ -48,7 +48,7 @@ cargo run -- scan \
 | `--ports`        | Kommaseparierte Liste von Ports oder Bereiche (`80`, `22-25`, `443`)         |
 | `--timeout`      | Timeout pro Verbindung (ms) [default: `500`]                                 |
 | `--concurrency`  | Anzahl paralleler Verbindungen [default: `100`]                              |
-| `--banner`       | Versucht Bannerinformationen (z. B. Server-Header) zu lesen                   |
+| `--cve`          |Aktiviert CVE-Erkennung                                                       |
 | `--output`       | Optionaler Pfad zur JSON-Ausgabedatei                                        |
 
 ## 📂 Projektstruktur

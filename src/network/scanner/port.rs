@@ -7,7 +7,7 @@ use std::net::{IpAddr};
 use crate::models::connection::ConnectionStatus;
 
 
-
+#[derive(Default)]
 pub struct PortScanResult {
     pub status: ConnectionStatus,
     pub latency_ms: Option<u128>,

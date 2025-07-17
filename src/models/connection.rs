@@ -10,6 +10,8 @@ pub struct Connection {
 
     pub server: String,
 
+    pub web_service: WebService,
+
     pub banner: String,
 
     pub status: ConnectionStatus,
@@ -23,9 +25,10 @@ pub struct Connection {
     pub cve: Option<Vec<CveEntry>>
 }
 
-#[derive(Serialize, Deserialize, PartialEq, PartialOrd, Ord, Eq, Clone, Copy)]
+#[derive(Serialize, Deserialize, PartialEq, PartialOrd, Ord, Eq, Clone, Copy, Default)]
 pub enum ConnectionStatus {
     OPEN,
+    #[default]
     CLOSED,
     TIMEOUT
 }
@@ -43,4 +46,17 @@ pub struct CveEntry {
     pub severity: String,
     pub description: String,
     pub href: String,
+}
+
+#[derive(Serialize, Default)]
+pub enum WebService {
+    #[default]
+    NONE,
+    HTTP,
+    SSH, 
+    FTP,
+    SMTP,
+    REDIS,
+    IMAP,
+    POP3,
 }

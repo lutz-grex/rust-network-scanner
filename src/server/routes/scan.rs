@@ -4,7 +4,7 @@ use futures::{future::join_all, TryFutureExt};
 use rocket::{http::{ext::IntoCollection, Status}, serde::json::Json, Route};
 use serde::Deserialize;
 
-use crate::{cli::extractor::parse_ip_addr_input, models::connection::Connection, thread_executor::thread_fetch_connection_details};
+use crate::{cli::extractor::{parse_ip_addr_input, parse_port_input}, models::connection::Connection, server::helper::validate::Validatable, thread_executor::thread_fetch_connection_details};
 
 
 
@@ -13,18 +13,43 @@ pub struct ScanParams<'r> {
     target: &'r str,
     ports: &'r str,
     concurrency: Option<usize>,
-    timeout_ms: Option<u64>,
-    banner: Option<bool>,
+    timeout: Option<u64>,
+    cve: Option<bool>,
 }
+
+
+impl<'a> Validatable for ScanParams<'a> {
+    fn validate(&self) -> Result<(),  (rocket::http::Status, String)> {
+
+        println!("{:?}", self.target);
+
+        if self.target.trim().is_empty() {
+            return Err((Status::BadRequest, "Invalid input for target".into()));
+        }
+
+        if self.ports.trim().is_empty() {
+            return Err((Status::BadRequest, "Invalid input for port".into()));
+        }
+
+        Ok(())
+    }
+}
+
 
 #[get("/scan?<params..>")]
 pub async fn scan<'r>(params: ScanParams<'r>) -> Result<Json<Vec<Connection>>, (rocket::http::Status, String)> {
-    let timeout_ms = params.timeout_ms.unwrap_or(1000);
-    let banner = params.banner.unwrap_or(false);
-    let concurrency = params.concurrency.unwrap_or(100);
-    let ips = parse_ip_addr_input(params.target);
 
-    let connections = thread_fetch_connection_details(&ips, &params.ports, timeout_ms, concurrency, banner)
+    params.validate()?;
+
+    let timeout_ms = params.timeout.unwrap_or(1000);
+    let include_cve = params.cve.unwrap_or(false);
+    let concurrency = params.concurrency.unwrap_or(100);
+    let ips = parse_ip_addr_input(params.target)
+        .map_err(|e| (Status::BadRequest, e.to_string()))?;
+    let ports = parse_port_input(&params.ports)
+        .map_err(|e| (Status::BadRequest, e.to_string()))?;
+
+    let connections = thread_fetch_connection_details(&ips, &ports, timeout_ms, concurrency, include_cve)
         .await
         .map_err(|e| (Status::InternalServerError, format!("Scan failed: {e}")))?;
 

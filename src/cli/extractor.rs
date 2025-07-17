@@ -1,4 +1,5 @@
 use std::{collections::HashSet, net::IpAddr};
+use std::error::Error;
 
 use ipnetwork::IpNetwork;
 
@@ -6,7 +7,7 @@ use ipnetwork::IpNetwork;
 /**
  * String format: 56,56,43,88-9000
  */
-pub fn parse_port_input(to_parse: &str) -> HashSet<u16> {
+pub fn parse_port_input(to_parse: &str) -> Result<HashSet<u16>, Box<dyn Error + Send + Sync>> {
     let mut results = Vec::new();
 
     for part in to_parse.split(',') {
@@ -26,17 +27,17 @@ pub fn parse_port_input(to_parse: &str) -> HashSet<u16> {
     };
 
     let set: HashSet<u16> = results.into_iter().collect();
-    set
+    Ok(set)
 }
 
-pub fn parse_ip_addr_input(to_parse: &str) -> Vec<IpAddr> {
+pub fn parse_ip_addr_input(to_parse: &str) -> Result<Vec<IpAddr>, Box<dyn Error + Send + Sync>> {
 
     if let Ok(net) = to_parse.parse::<IpNetwork>() {
-        net.iter().collect()
+        Ok(net.iter().collect())
     } else if let Ok(ip) = to_parse.parse::<IpAddr>() {
-        vec![ip]
+        Ok(vec![ip])
     } else {
-        vec![]
+        Err("Parse error, invalid IP".into())
     }
 }
 

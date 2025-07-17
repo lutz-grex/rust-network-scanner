@@ -8,7 +8,7 @@ pub struct HealthStatus {
 }
 
 
-#[get("/health")]
+#[get("/")]
 pub async fn scan() -> Json<HealthStatus> {
     Json(HealthStatus {
         status: "OK",

@@ -1,19 +1,18 @@
-use std::{error::Error, net::IpAddr, sync::Arc, time::Duration};
+use std::{collections::HashSet, error::Error, net::IpAddr, sync::Arc, time::Duration};
 
 use futures::future::join_all;
 use tokio::sync::Semaphore;
 use indicatif::ProgressBar;
 
-use crate::{cli::extractor::parse_port_input, models::connection::Connection, network::{self, connection_scanner::fetch_connection_details}};
+use crate::{models::connection::Connection, network::{connection_scanner::fetch_connection_details}};
 
 
 
-pub async fn thread_fetch_connection_details(target: &Vec<IpAddr>, ports: &str, timeout: u64, concurrency: usize, banner: bool) -> Result<Vec<Connection>, Box<dyn Error + Send + Sync>> {
+pub async fn thread_fetch_connection_details(target: &Vec<IpAddr>, ports: &HashSet<u16>, timeout: u64, concurrency: usize, include_cve: bool) -> Result<Vec<Connection>, Box<dyn Error + Send + Sync>> {
     let semaphore = Arc::new(Semaphore::new(concurrency));
     let timeout_duration = Duration::from_millis(timeout);
-    let ports_set = parse_port_input(&ports);
 
-    let scan_process: u64 = (target.len() * ports_set.len()).try_into().unwrap();
+    let scan_process: u64 = (target.len() * ports.len()).try_into().unwrap();
     let bar = ProgressBar::new(scan_process);
 
 
@@ -22,11 +21,11 @@ pub async fn thread_fetch_connection_details(target: &Vec<IpAddr>, ports: &str, 
         let ip = *ip;
         let bar = bar.clone();
 
-        ports_set.iter().map(move |port| {
+        ports.iter().map(move |port| {
             let semaphore = semaphore.clone();
             let port = *port;
             let timeout_duration = timeout_duration.clone();
-            let banner = banner.clone();
+            let include_cve = include_cve.clone();
             let bar = bar.clone();
 
             async move {
@@ -34,7 +33,7 @@ pub async fn thread_fetch_connection_details(target: &Vec<IpAddr>, ports: &str, 
                     .map_err(|e| format!("Semaphore Error, {}", e.to_string()))?;
 
                 
-                let result = fetch_connection_details(&ip, port, banner, &timeout_duration).await;
+                let result = fetch_connection_details(&ip, port, include_cve, &timeout_duration).await;
                 bar.inc(1);
                 result
             }

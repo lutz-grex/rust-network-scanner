@@ -17,11 +17,11 @@ pub enum Commands {
         ports: String,
         #[clap(short = 't', long, default_value_t = 500)]
         timeout: u64,
-        #[clap(short, long, default_value_t = 100)]
+        #[clap(short = 'c', long, default_value_t = 100)]
         concurrency: usize,
-        #[arg(short, long, default_value_t = false)]
-        banner: bool,
-        #[clap(short, long)] // Path for output.json
+        #[arg(long, default_value_t = false)]
+        cve: bool,
+        #[clap(short, long)]
         output: Option<String>,
 
     }
