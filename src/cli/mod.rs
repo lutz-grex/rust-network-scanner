@@ -1,2 +1,2 @@
-pub mod extractor;
 pub mod command;
+pub mod extractor;

@@ -1,62 +1,59 @@
-use serde::{Deserialize, Serialize};
+use crate::models::cve_entry::CveEntry;
+use crate::models::status::{ConnectionStatus, RequestStatus};
+use crate::models::web_services::WebService;
+use crate::network::scanner::banner::BannerScanResult;
+use crate::network::scanner::port::PortScanResult;
+use serde::Serialize;
+use std::net::IpAddr;
 
 #[derive(Serialize)]
 pub struct Connection {
-    #[serde(rename = "ip")]              // JSON-Feld heißt "ip" statt "target"
+    #[serde(rename = "ip")]
     pub target: String,
-
-    #[serde(default)]                   // Wenn Port mal nicht angegeben ist, Default = 0
+    #[serde(default)]
     pub port: u16,
 
-    pub server: String,
-
-    pub web_service: WebService,
-
-    pub banner: String,
-
-    pub status: ConnectionStatus,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub latency_ms: Option<u128>,            // Antwortzeit in ms
-
+    pub connection_status: ConnectionStatus,
     pub request_status: RequestStatus,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cve: Option<Vec<CveEntry>>
+    pub server: Option<String>,
+    pub web_service: Option<WebService>,
+    pub banner: Option<String>,
+    pub latency_ms: Option<u128>,
+    pub cve: Option<Vec<CveEntry>>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, PartialOrd, Ord, Eq, Clone, Copy, Default)]
-pub enum ConnectionStatus {
-    OPEN,
-    #[default]
-    CLOSED,
-    TIMEOUT
-}
+impl Connection {
+    pub fn from_results(
+        target: &IpAddr,
+        port: u16,
+        port_scan: Option<PortScanResult>,
+        banner_scan: Option<BannerScanResult>,
+        cve: Option<Vec<CveEntry>>,
+    ) -> Self {
+        let (banner, server, web_service) = banner_scan
+            .map(|b| (Some(b.banner), Some(b.server), Some(b.web_service)))
+            .unwrap_or((None, None, None));
 
-#[derive(Serialize, Deserialize, PartialEq, PartialOrd, Ord, Eq, Clone, Copy)]
-pub enum RequestStatus {
-    SUCCESS,
-    FAILED
-}
+        let (connection_status, latency_ms) = port_scan
+            .map(|p| (p.status, p.latency_ms))
+            .unwrap_or((ConnectionStatus::CLOSED, None));
 
-#[derive(Serialize)]
-pub struct CveEntry {
-    pub title: String,
-    pub score: f32,
-    pub severity: String,
-    pub description: String,
-    pub href: String,
-}
+        let request_status = match connection_status {
+            ConnectionStatus::OPEN => RequestStatus::SUCCESS,
+            _ => RequestStatus::FAILED,
+        };
 
-#[derive(Serialize, Default, Debug, Clone)]
-pub enum WebService {
-    #[default]
-    NONE,
-    HTTP,
-    SSH, 
-    FTP,
-    SMTP,
-    REDIS,
-    IMAP,
-    POP3,
+        Connection {
+            target: target.to_string(),
+            port,
+            connection_status,
+            latency_ms,
+            banner,
+            server,
+            web_service,
+            request_status,
+            cve,
+        }
+    }
 }

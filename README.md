@@ -1,24 +1,25 @@
 # 🔍 Rust Network Scanner
 
-Ein performanter, asynchroner Netzwerk-Scanner in Rust, der IP-Adressen und Portbereiche scannt, Bannerinformationen sammelt und CVE-Schwachstellen (Common Vulnerabilities and Exposures) identifiziert. Optional können Ergebnisse als JSON-Datei gespeichert werden.
+An asynchronous network scanner in Rust that scans IP addresses and port ranges, collects banner information, and identifies CVE vulnerabilities (Common Vulnerabilities and Exposures). Optionally, results can be saved as a JSON file.
 
 ## ✨ Features
 
-- 🔌 **Asynchroner Netzwerk-Scan** mit konfigurierbarer Parallelität und Timeout
-- 🧾 **Banner-Erkennung** zur Ermittlung von Dienstinformationen (z. B. HTTP-Server)
-- 🔐 **CVE-Erkennung via Vulners API** (optional)
-- 💾 **Ausgabe als JSON-Datei**
-- ⚙️ **CLI mit Clap**
-- 🌐 (Optional) REST-API mit Rocket
+- 🔌 **Asynchronous network scanning** with configurable concurrency and timeout
+- 🧾 **Banner detection** to identify service information (e.g., HTTP servers)
+- 🔐 **CVE detection via Vulners API** (optional)
+- 💾 **Output as JSON file**
+- ⚙️ **CLI using Clap**
+- 🌐 (Optional) REST API with Rocket
 
-## 📦 Abhängigkeiten
+## 📦 Dependencies
 
-- [`tokio`](https://docs.rs/tokio) – Asynchrone Runtime
-- [`rocket`](https://rocket.rs) – Web-Framework (optional)
-- [`reqwest`](https://docs.rs/reqwest) – HTTP-Client
-- [`serde`](https://serde.rs) – Serialisierung/Deserialisierung
-- [`anyhow`](https://docs.rs/anyhow) – Fehlerbehandlung
-- [`clap`](https://docs.rs/clap) – CLI-Parsing
+- [`tokio`](https://docs.rs/tokio) – Asynchronous runtime
+- [`rocket`](https://rocket.rs) – Web framework (optional)
+- [`reqwest`](https://docs.rs/reqwest) – HTTP client
+- [`serde`](https://serde.rs) – Serialization/Deserialization
+- [`anyhow`](https://docs.rs/anyhow) – Error handling
+- [`clap`](https://docs.rs/clap) – CLI argument parsing
+
 
 ## 🚀 Installation
 
@@ -28,7 +29,7 @@ cd rust-network-scanner
 cargo build --release
 ```
 
-## 🔧 Beispiel-Nutzung
+## 🔧 Example Usage
 
 ```bash
 cargo run -- scan \
@@ -40,39 +41,38 @@ cargo run -- scan \
   --output output.json
 ```
 
-### Argumente
+### Arguments
 
-| Argument         | Beschreibung                                                                 |
-|------------------|------------------------------------------------------------------------------|
-| `target`         | Ziel-IP oder Bereich (z. B. `192.168.0.1`, `10.0.0.0/24`)                     |
-| `--ports`        | Kommaseparierte Liste von Ports oder Bereiche (`80`, `22-25`, `443`)         |
-| `--timeout`      | Timeout pro Verbindung (ms) [default: `500`]                                 |
-| `--concurrency`  | Anzahl paralleler Verbindungen [default: `100`]                              |
-| `--cve`          |Aktiviert CVE-Erkennung                                                       |
-| `--output`       | Optionaler Pfad zur JSON-Ausgabedatei                                        |
+| Argument         |                          Description                           |
+|------------------|:--------------------------------------------------------------:|
+| `target`         | Target IP or range (e.g `192.168.0.1`, `10.0.0.0/24`)          |
+| `--ports`        | Comma-separated list of ports or ranges (`80`, `22-25`, `443`) |
+| `--timeout`      |          Timeout per connection (ms) [default: `500`]          |
+| `--concurrency`  |        Number of parallel connections [default: `100`]         |
+| `--cve`          |                      Enable CVE detection                      |
+| `--output`       |               Optional path to JSON output file                |
 
-## 📂 Projektstruktur
+## 📂 Project Structure
 
 ```txt
 src/
-├── cli/                # Kommandozeilen-Parsing
-├── network/            # Netzwerkfunktionen: Scans, CVE-Abfrage, etc.
-├── services/           # Dateischreibdienste u. Ä.
-├── routes/             # Optionale Rocket-API-Endpunkte
-├── thread_executor/    # Parallele Verarbeitung
-├── models/             # Structs & Datenmodelle
-└── main.rs             # Einstiegspunkt
+├── cli/                # Command-line parsing
+├── network/            # Network functions: scanning, CVE queries, etc.
+├── services/           # File-writing services, etc.
+├── routes/             # Optional Rocket API endpoints
+├── thread_executor/    # Parallel processing
+├── models/             # Structs & data models
+└── main.rs             # Entry point
 ```
 
-## 🔐 CVE-Erkennung mit Vulners API
+## 🔐 CVE Detection with Vulners API
 
-Der Scanner integriert die [Vulners API](https://vulners.com/) zur Erkennung von Schwachstellen basierend auf Dienst-Bannern (z. B. `Apache/2.4.41`).
+The scanner integrates the [Vulners API](https://vulners.com/) to detect vulnerabilities based on service banners (e.g., Apache/2.4.41).
 
 
+## 🌐 Optional: HTTP API with Rocket
 
-## 🌐 Optional: HTTP API mit Rocket
-
-Der Code ist vorbereitet für die Bereitstellung als REST API mit Rocket. Um die API zu aktivieren, entkommentiere folgenden Abschnitt in `main.rs`:
+The code is prepared to run as a REST API using Rocket. To enable the API, uncomment the following section in main.rs:
 
 ```rust
 #[launch]
@@ -83,12 +83,12 @@ fn rocket() -> _ {
 }
 ```
 
-## 🛡 Sicherheit
+🛡 Security
 
-Der Scanner kann mit Sicherheitsdatenbanken wie Vulners verknüpft werden, um bekannte Schwachstellen anhand von Bannern oder Serverinformationen zu identifizieren.
+The scanner can be linked with vulnerability databases like Vulners to identify known vulnerabilities based on banners or server information.
 
 ## 📄 Lizenz
 
-MIT – feel free to use, modify and share.
+MIT – feel free to use, modify, and share.
 
 ---

@@ -1,13 +1,13 @@
 use reqwest::Method;
-use std::error::Error;
 
-use crate::{models::connection::CveEntry, network::adapter::vulners::connector::{request, VulnersRequestBuilder}};
+use crate::models::cve_entry::CveEntry;
+use crate::network::adapter::vulners::vulners_request::{VulnersRequest, VulnersRequestBuilder};
+use crate::network::requests::network_request::NetworkRequest;
 
-
-
-
-pub async fn request_cve(server: &str, score_min: f32) ->  Result<Option<Vec<CveEntry>> , Box<dyn Error + Send + Sync>> {
-
+pub async fn request_cve(
+    server: &str,
+    score_min: f32,
+) -> Result<Option<Vec<CveEntry>>, anyhow::Error> {
     if server.is_empty() || score_min > 10.0 {
         return Ok(None);
     }
@@ -20,24 +20,26 @@ pub async fn request_cve(server: &str, score_min: f32) ->  Result<Option<Vec<Cve
         .add_query_param("query", server)
         .build()?;
 
-        println!("{:?}", req);
+    println!("{:?}", req);
 
-    match request(&req).await {
+    match req.request().await {
         Ok(res) => {
-            let mut filtered = res.data.search.iter()
-                .filter(|cve_index| {
-                    cve_index.source.cvss
-                        .as_ref()
-                        .map_or(false, |cvss| cvss.score >= score_min)
-                })
-                .map(|c| {
-                    let cvss = c.source.cvss.as_ref();
-                    CveEntry {
-                        title: c.source.title.clone(),
-                        description: c.source.description.clone().unwrap_or_default(),
-                        href: c.source.href.clone().unwrap_or_default(),
-                        score: cvss.map_or(0.0, |c| c.score),
-                        severity: cvss.map_or("UNKNOWN".to_string(), |c| c.severity.clone().to_string()),
+            let mut filtered = res
+                .data
+                .search
+                .iter()
+                .filter_map(|cve_index| {
+                    let cvss = cve_index.source.cvss.as_ref()?;
+                    if cvss.score >= score_min {
+                        Some(CveEntry {
+                            title: cve_index.source.title.clone(),
+                            description: cve_index.source.description.clone().unwrap_or_default(),
+                            href: cve_index.source.href.clone().unwrap_or_default(),
+                            score: cvss.score,
+                            severity: cvss.severity.to_string(),
+                        })
+                    } else {
+                        None
                     }
                 })
                 .collect::<Vec<_>>();

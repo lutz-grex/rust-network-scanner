@@ -1,7 +1,6 @@
 pub mod connection_scanner;
 
-
-mod scanner;
 mod adapter;
+mod util;
 mod requests;
-mod helper;
+pub mod scanner;

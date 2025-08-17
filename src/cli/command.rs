@@ -1,6 +1,5 @@
 use clap::{Parser, Subcommand};
 
-
 #[derive(Parser, Debug)]
 #[clap(version, author, about)]
 pub struct Cli {
@@ -23,6 +22,5 @@ pub enum Commands {
         cve: bool,
         #[clap(short, long)]
         output: Option<String>,
-
-    }
+    },
 }

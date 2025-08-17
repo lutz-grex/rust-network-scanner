@@ -2,7 +2,6 @@ use core::fmt;
 
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Debug, Deserialize)]
 pub struct VulnersResult {
     pub result: VulnersResponseStatus,
@@ -20,19 +19,19 @@ pub enum VulnersResponseStatus {
 pub struct VulnersSearchResult {
     #[serde(default)]
     pub search: Vec<VulnersCveEntry>,
-    
+
     #[serde(rename = "exactMatch", default)]
     pub exact_match: Option<serde_json::Value>,
-    
+
     #[serde(default)]
     pub occurrences: Option<serde_json::Value>,
-    
+
     #[serde(default)]
     pub references: Option<serde_json::Value>,
-    
+
     #[serde(default)]
     pub total: Option<u32>,
-    
+
     #[serde(rename = "maxSearchSize", default)]
     pub max_search_size: Option<u32>,
 }
@@ -94,12 +93,9 @@ pub enum SeverityScore {
     MEDIUM,
     LOW,
     NONE,
-    UNKNOWN
+    UNKNOWN,
 }
 
-/**
- * to call to_string on enum
- */
 impl fmt::Display for SeverityScore {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
